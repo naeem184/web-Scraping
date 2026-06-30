@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web Data Extractor Pro - Extract Titles & Emails in Bulk</title>
+    <meta name="description" content="Extract website titles and email addresses from 100+ URLs at once. Free, fast, and no registration required." />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-robot"></i>
+                <span>Web Data Extractor</span>
+            </div>
+            <nav class="nav">
+                <a href="index.html" class="active">Home</a>
+                <a href="blog.html">Blog</a>
+                <a href="about.html">About</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Extract Website <span class="highlight">Titles & Emails</span> in Bulk</h1>
+                <p>
+                    Enter up to <strong>200 URLs</strong> at once and extract:
+                    <br />
+                    📄 Page Titles &bull; 📧 Email Addresses
+                </p>
+                <div class="hero-buttons">
+                    <a href="#extractor" class="btn btn-primary">
+                        <i class="fas fa-rocket"></i> Start Extracting
+                    </a>
+                    <a href="#how-it-works" class="btn btn-outline">
+                        <i class="fas fa-play-circle"></i> How It Works
+                    </a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="demo-box">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Extract titles &amp; emails from 100+ websites</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section id="how-it-works" class="how-it-works">
+        <div class="container">
+            <h2>How It Works</h2>
+            <p class="subtitle">Extract website titles and emails in 3 simple steps</p>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <div class="step-icon"><i class="fas fa-list-ul"></i></div>
+                    <h3>Add URLs</h3>
+                    <p>Paste your list of website URLs (one per line). Up to 200 at once.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <div class="step-icon"><i class="fas fa-cogs"></i></div>
+                    <h3>Extract Data</h3>
+                    <p>Click "Extract" and our tool will fetch titles and emails from each website.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <div class="step-icon"><i class="fas fa-file-excel"></i></div>
+                    <h3>Download Excel</h3>
+                    <p>Export all extracted data as a CSV file with one click.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Extractor Tool -->
+    <section id="extractor" class="extractor">
+        <div class="container">
+            <h2>Bulk Title &amp; Email Extractor</h2>
+            <p class="subtitle">Paste your URLs below and click Extract</p>
+
+            <div class="extractor-box">
+                <div class="input-area">
+                    <label for="urlInput">Enter URLs (one per line)</label>
+                    <textarea id="urlInput" rows="8" placeholder="https://example1.com&#10;https://example2.com&#10;https://example3.com"></textarea>
+                    <div class="url-controls">
+                        <span id="urlCount">0 URLs added</span>
+                        <button id="clearUrlsBtn" class="btn btn-sm btn-secondary">
+                            <i class="fas fa-trash"></i> Clear
+                        </button>
+                        <button id="sampleUrlsBtn" class="btn btn-sm btn-outline">
+                            <i class="fas fa-file-alt"></i> Load Sample
+                        </button>
+                    </div>
+                </div>
+
+                <div class="action-area">
+                    <button id="extractBtn" class="btn btn-primary btn-large">
+                        <i class="fas fa-search"></i> Extract Data
+                    </button>
+                    <button id="downloadBtn" class="btn btn-success btn-large" disabled>
+                        <i class="fas fa-file-excel"></i> Download Excel
+                    </button>
+                    <button id="clearResultsBtn" class="btn btn-secondary btn-large">
+                        <i class="fas fa-eraser"></i> Clear Results
+                    </button>
+                </div>
+
+                <!-- Progress -->
+                <div id="progressArea" class="progress-area" style="display:none;">
+                    <div class="progress-bar">
+                        <div id="progressFill" class="progress-fill" style="width:0%"></div>
+                    </div>
+                    <span id="progressText">Processing 0/0...</span>
+                </div>
+            </div>
+
+            <!-- Results Table - Only Title & Emails -->
+            <div id="resultsArea" class="results-area" style="display:none;">
+                <h3>Extracted Data</h3>
+                <div class="table-wrapper">
+                    <table id="resultsTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>URL</th>
+                                <th>Title</th>
+                                <th>Emails</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsBody">
+                            <!-- Results will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="resultCount" class="result-count"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-about">
+                    <h3><i class="fas fa-robot"></i> Web Data Extractor</h3>
+                    <p>Extract website titles and email addresses in bulk. Free and easy to use.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <a href="index.html">Home</a>
+                    <a href="blog.html">Blog</a>
+                    <a href="about.html">About</a>
+                    <a href="contact.html">Contact</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Legal</h4>
+                    <a href="privacy.html">Privacy Policy</a>
+                    <a href="terms.html">Terms of Service</a>
+                </div>
+                <div class="footer-social">
+                    <h4>Follow Us</h4>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Web Data Extractor Pro. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display:none;">
+        <div class="spinner"></div>
+        <p id="loadingText">Extracting data...</p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
