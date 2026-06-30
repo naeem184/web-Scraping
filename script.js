@@ -25,19 +25,20 @@ let isExtracting = false;
 let cancelled = false;
 
 // ============================================
-// CORS PROXIES (Multiple Fallbacks)
+// CORS PROXIES - DEPLOY FRIENDLY
 // ============================================
+// Using multiple proxies with different approaches
 const CORS_PROXIES = [
-    // Primary - Most reliable
+    // Try direct fetch first (works for some sites)
+    (url) => url,
+    // Using allorigins (most reliable)
     (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-    // Backup 1
+    // Using corsproxy.io
     (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-    // Backup 2
+    // Using codetabs
     (url) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-    // Backup 3 - Using a different proxy
-    (url) => `https://thingproxy.freeboard.io/fetch/${url}`,
-    // Backup 4 - Using cors-anywhere
-    (url) => `https://cors-anywhere.herokuapp.com/${url}`
+    // Using thingproxy
+    (url) => `https://thingproxy.freeboard.io/fetch/${url}`
 ];
 
 // ============================================
@@ -56,20 +57,20 @@ function getUrls() {
 }
 
 // ============================================
-// SAMPLE URLs
+// SAMPLE URLs (Working Sites)
 // ============================================
 sampleUrlsBtn.addEventListener('click', () => {
     const samples = [
-        'https://medium.com',
-        'https://www.techcrunch.com',
-        'https://www.theverge.com',
-        'https://mashable.com',
-        'https://www.wired.com',
-        'https://gizmodo.com',
-        'https://www.engadget.com',
-        'https://thenextweb.com',
-        'https://techmeme.com',
-        'https://www.cnet.com'
+        'https://example.com',
+        'https://google.com',
+        'https://github.com',
+        'https://stackoverflow.com',
+        'https://wikipedia.org',
+        'https://youtube.com',
+        'https://facebook.com',
+        'https://twitter.com',
+        'https://linkedin.com',
+        'https://instagram.com'
     ];
     urlInput.value = samples.join('\n');
     urlInput.dispatchEvent(new Event('input'));
@@ -84,7 +85,7 @@ clearUrlsBtn.addEventListener('click', () => {
 });
 
 // ============================================
-// EXTRACT DATA - WITH RETRY AND DELAY
+// EXTRACT DATA - WITH PROXY ROTATION
 // ============================================
 extractBtn.addEventListener('click', async () => {
     const urls = getUrls();
@@ -115,7 +116,7 @@ extractBtn.addEventListener('click', async () => {
     const total = urls.length;
     const startTime = Date.now();
     
-    // Process one by one with delay (to avoid rate limiting)
+    // Process one by one with delay
     for (let i = 0; i < urls.length; i++) {
         if (cancelled) break;
         
@@ -126,7 +127,7 @@ extractBtn.addEventListener('click', async () => {
         loadingText.textContent = `Processing ${i + 1}/${total}: ${url.substring(0, 50)}...`;
         
         try {
-            const data = await extractWebsiteDataWithRetry(url);
+            const data = await extractWebsiteDataWithFallback(url);
             results.push(data);
         } catch (error) {
             results.push({
@@ -144,8 +145,8 @@ extractBtn.addEventListener('click', async () => {
         const errorCount = results.filter(d => d.status === 'error').length;
         resultCount.textContent = `✅ ${successCount} successful | ❌ ${errorCount} failed | Total: ${results.length}`;
         
-        // Delay between requests to avoid rate limiting
-        await new Promise(r => setTimeout(r, 1000));
+        // Delay between requests
+        await new Promise(r => setTimeout(r, 1500));
     }
     
     const elapsedTime = ((Date.now() - startTime) / 1000).toFixed(1);
@@ -166,31 +167,38 @@ extractBtn.addEventListener('click', async () => {
 });
 
 // ============================================
-// EXTRACT WEBSITE DATA - WITH RETRY
+// EXTRACT WEBSITE DATA - WITH FALLBACK PROXIES
 // ============================================
-async function extractWebsiteDataWithRetry(url, retryCount = 0) {
-    const maxRetries = 2;
+async function extractWebsiteDataWithFallback(url) {
+    let lastError = null;
     
-    // Try each CORS proxy
+    // Try each proxy
     for (let proxyIndex = 0; proxyIndex < CORS_PROXIES.length; proxyIndex++) {
         try {
             const proxyUrl = CORS_PROXIES[proxyIndex](url);
             
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 15000);
+            const timeoutId = setTimeout(() => controller.abort(), 20000);
             
             const response = await fetch(proxyUrl, {
-                signal: controller.signal
+                signal: controller.signal,
+                mode: 'cors',
+                credentials: 'omit'
             });
             
             clearTimeout(timeoutId);
             
-            if (!response.ok) continue;
+            if (!response.ok) {
+                continue;
+            }
             
             const html = await response.text();
             
-            if (html.length < 100) continue;
+            if (html.length < 100) {
+                continue;
+            }
             
+            // Parse HTML
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
             
@@ -222,22 +230,18 @@ async function extractWebsiteDataWithRetry(url, retryCount = 0) {
             };
             
         } catch (error) {
+            lastError = error;
             // Try next proxy
             continue;
         }
     }
     
-    // If all proxies failed and we have retries left
-    if (retryCount < maxRetries) {
-        await new Promise(r => setTimeout(r, 2000));
-        return extractWebsiteDataWithRetry(url, retryCount + 1);
-    }
-    
-    throw new Error('All proxies failed');
+    // If all proxies failed
+    throw new Error(lastError?.message || 'All proxies failed');
 }
 
 // ============================================
-// EXTRACT EMAILS
+// EXTRACT EMAILS - FAST VERSION
 // ============================================
 function extractEmailsFast(text) {
     const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
